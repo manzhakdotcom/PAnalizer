@@ -25,7 +25,7 @@ def get_protocol():
 
     with open('test/result', 'a') as file:
         print('================================================================================\n', file=file)
-        print('ФОРМАТ ЗАПИСИ: <СТАНЦИЯ> <ГГГГ-ММ-ДД> <ЧЧ:ММ:СС> --- <СПИСОК ИМПУЛЬСОВ>\n', file=file)
+        print('<СТАНЦИЯ> <ДД-ММ> <ЧЧ:ММ:СС> --- <СПИСОК ИМПУЛЬСОВ>\n', file=file)
         sdata = sorted(data)
         station = ''
         for line in sdata:
