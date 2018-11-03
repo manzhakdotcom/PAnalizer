@@ -10,9 +10,14 @@ import os
 def get_protocol(paths):
     data = []
     for path in paths:
-        with open(path) as file:
-            try:
-                for line in file.readlines():
+        try:
+            with open(path) as file:
+                lines = file.readlines()
+                if not re.findall('d:\d+,M:\d+,h:\d+,m:\d+,s:\d+,', lines[0]):
+                    messagebox.showwarning('Предупреждение',
+                                           'Файл ' + path.split('/')[-1] + ' не является протоколом.')
+                    continue
+                for line in lines:
                     if not re.findall('^t=|[dMhms]', line):
                         data[-1][1] += line.rstrip()
                     if re.findall(r'd:(\d+)', line):
@@ -30,21 +35,30 @@ def get_protocol(paths):
                         impulse = re.findall(r'^t=([^,]+),(.+)$', line)[0][1]
                         data.append([station])
                         data[-1].append('{} {}-{} {}:{}:{} --- {}'.format(station, month, day, hour, minute, second, impulse))
-            except UnicodeDecodeError:
-                messagebox.showwarning('Предупреждение', 'Не могу прочитать файл.')
-                continue
+        except Exception as err:
+            messagebox.showwarning('Предупреждение',
+                                   'Не могу прочитать файл ' + path.split('/')[-1] + '.\nОшибка: ' + str(err))
+            continue
+    if not data:
+        return False
 
-    save = asksaveasfilename(initialdir=os.getcwd(), title='Сохранить результат')
-    with open(save, 'a') as file:
-        print('================================================================================\n', file=file)
-        print('<СТАНЦИЯ> <ДД-ММ> <ЧЧ:ММ:СС> --- <СПИСОК ИМПУЛЬСОВ>\n', file=file)
-        sdata = sorted(data)
-        station = ''
-        for line in sdata:
-            if not line[0] in station:
-                print('================================================================================\n', file=file)
-                station = line[0]
-            print(line[1], file=file)
+    save = asksaveasfilename(initialdir=os.getcwd(),
+                             title='Сохранить результат',
+                             initialfile='result',
+                             filetypes=[('all files', '.*'), ('text files', '.txt')],
+                             defaultextension='.txt')
+    if save:
+        with open(save, 'w') as file:
+            print('================================================================================\n', file=file)
+            print('<СТАНЦИЯ> <ДД-ММ> <ЧЧ:ММ:СС> --- <СПИСОК ИМПУЛЬСОВ>\n', file=file)
+            sdata = sorted(data)
+            station = ''
+            for line in sdata:
+                if not line[0] in station:
+                    print('================================================================================\n', file=file)
+                    station = line[0]
+                print(line[1], file=file)
+        return save
 
 
 class App:
@@ -52,9 +66,8 @@ class App:
         self.root = root
         self.root.bind('<F1>', self.top_level_about)
         self.root.bind('<Control-q>', self.close)
+        self.root.bind('<Control-z>', self.add_file)
         self.menu()
-        self.countrynames = ()
-        self.files = StringVar()
         self.elements()
 
     def menu(self):
@@ -68,6 +81,8 @@ class App:
         menubar.add_cascade(menu=file, label=u'Файл')
         menubar.add_cascade(menu=about, label=u'?')
 
+        file.add_command(label=u'Добавить файл', command=self.add_file, accelerator="Ctrl+Z")
+        file.add_separator()
         file.add_command(label=u'Выйти', command=self.close, accelerator="Ctrl+Q")
 
         about.add_command(label=u'О программе', command=self.top_level_about, accelerator="F1")
@@ -81,7 +96,9 @@ class App:
         self.lbox = Listbox(c, height=10)
         vsb = ttk.Scrollbar(c, orient=VERTICAL, command=self.lbox.yview)
         vsb.pack(fill=Y, side=RIGHT)
-        self.lbox.configure(yscrollcommand=vsb.set)
+        hsb = ttk.Scrollbar(c, orient=HORIZONTAL, command=self.lbox.xview)
+        hsb.pack(fill=X, side=BOTTOM)
+        self.lbox.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
         self.lbox.pack(fill=BOTH)
 
         c2 = ttk.Frame(self.root)
@@ -100,7 +117,7 @@ class App:
 
         self.lbox.bind('<Double-1>', lambda event: self.remove_file())
 
-    def add_file(self):
+    def add_file(self, event=None):
         path = askopenfilename(initialdir=os.getcwd())
         if '' != path.strip():
             self.lbox.insert(END, path)
@@ -124,10 +141,11 @@ class App:
         else:
             self.run.configure(text=u'Обработка...')
             self.run.update()
-            get_protocol(self.lbox.get(0, END))
+            result = get_protocol(self.lbox.get(0, END))
+            if result:
+                messagebox.showinfo('Сообщение', 'Протокол обработан и сохранен по адресу\n' + result)
             self.run.configure(text=u'Запустить обработку')
             self.run.update()
-            messagebox.showinfo('Сообщение', 'Протокол обработан и сохранен.')
 
     def top_level_about(self, event=None):
         win = Toplevel(self.root)
@@ -162,7 +180,7 @@ def main():
     root = Tk()
     root.version = '0.0.1'
     root.resizable(0, 0)
-    center(root, 250, 330, 0)
+    center(root, 250, 340, 0)
     root.title(u'Анализ протоколов')
     root.iconbitmap(os.getcwd() + os.path.sep + 'icon.ico')
     app = App(root)
