@@ -143,7 +143,7 @@ class App:
             self.run.update()
             result = get_protocol(self.lbox.get(0, END))
             if result:
-                messagebox.showinfo('Сообщение', 'Протокол обработан и сохранен по адресу\n' + result)
+                messagebox.showinfo('Сообщение', 'Протокол обработан и сохранен по адресу\n' + str(result))
             self.run.configure(text=u'Запустить обработку')
             self.run.update()
 
@@ -178,7 +178,7 @@ def center(root, width, height, offset):
 
 def main():
     root = Tk()
-    root.version = '0.0.1'
+    root.version = '0.0.2'
     root.resizable(0, 0)
     center(root, 250, 340, 0)
     root.title(u'Анализ протоколов')
