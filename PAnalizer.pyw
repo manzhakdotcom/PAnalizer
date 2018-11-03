@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 import re
-from tkinter import *
-from tkinter import ttk
-from tkinter.filedialog import *
-from tkinter import messagebox
 import os
+try:
+    from Tkinter import *
+    import tkFileDialog
+    import tkMessageBox as messagebox
+except ImportError:
+    from tkinter import *
+    from tkinter.filedialog import *
+    from tkinter import messagebox
 
 
 def get_protocol(paths):
@@ -91,22 +95,22 @@ class App:
         self.root.destroy()
 
     def elements(self):
-        c = ttk.Frame(self.root)
-        c.pack(fill=BOTH)
+        c = Frame(self.root)
+        c.pack(fill=BOTH, expand=1, padx=5, pady=5)
         self.lbox = Listbox(c, height=10)
-        vsb = ttk.Scrollbar(c, orient=VERTICAL, command=self.lbox.yview)
+        vsb = Scrollbar(c, orient=VERTICAL, command=self.lbox.yview)
         vsb.pack(fill=Y, side=RIGHT)
-        hsb = ttk.Scrollbar(c, orient=HORIZONTAL, command=self.lbox.xview)
+        hsb = Scrollbar(c, orient=HORIZONTAL, command=self.lbox.xview)
         hsb.pack(fill=X, side=BOTTOM)
         self.lbox.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
         self.lbox.pack(fill=BOTH)
 
-        c2 = ttk.Frame(self.root)
+        c2 = Frame(self.root)
         c2.pack(fill=BOTH, expand=1, padx=30, pady=10)
 
-        add = ttk.Button(c2, text='Добавить файл', command=self.add_file)
-        remove = ttk.Button(c2, text='Удалить файл', command=self.remove_file)
-        self.run = ttk.Button(c2, text='Запустить обработку', command=self.run_parse)
+        add = Button(c2, text='Добавить файл', command=self.add_file)
+        remove = Button(c2, text='Удалить файл', command=self.remove_file)
+        self.run = Button(c2, text='Запустить обработку', command=self.run_parse)
 
         add.pack(fill=X)
         remove.pack(fill=X, pady=10)
@@ -126,18 +130,19 @@ class App:
 
     def remove_file(self):
         if not self.lbox.get(0, END):
-            messagebox.showwarning('Сообщение', 'Вы не выбрали файл из списка для удаления.')
+            messagebox.showwarning('Сообщение', 'Вы не добавили файлы для обработки.')
+            return
+        if not self.lbox.curselection():
+            messagebox.showinfo('Сообщение', 'Файл для удаления из списка не выбран.')
             return
         MsgBox = messagebox.askquestion('Удалить файл', 'Вы уверены, что хотите удалить файл из списка?',
                                         icon='warning')
         if MsgBox == 'yes':
-            if not self.lbox.curselection():
-                messagebox.showinfo('Сообщение', 'Файл из списк не выбран.')
             self.lbox.delete(ANCHOR)
 
     def run_parse(self):
         if not self.lbox.get(0, END):
-            messagebox.showwarning('Сообщение', 'Выберите файл протокола.')
+            messagebox.showwarning('Сообщение', 'Добавьте файлы протоколов для обработки.')
         else:
             self.run.configure(text=u'Обработка...')
             self.run.update()
