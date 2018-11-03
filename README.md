@@ -25,5 +25,5 @@
 
 ## Скриншот
 
-[![PAnalizer](https://github.com/manzhakdotcom/PAnalizer/blob/master/screenshot.png)]
+![PAnalizer](https://github.com/manzhakdotcom/PAnalizer/blob/master/screenshot.png)
 
