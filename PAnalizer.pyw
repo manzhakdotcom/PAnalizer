@@ -130,10 +130,10 @@ class App:
 
     def remove_file(self):
         if not self.lbox.get(0, END):
-            messagebox.showwarning('Сообщение', 'Вы не добавили файлы для обработки.')
+            messagebox.showwarning('Предупреждение', 'Вы не добавили файлы для обработки.')
             return
         if not self.lbox.curselection():
-            messagebox.showinfo('Сообщение', 'Файл для удаления из списка не выбран.')
+            messagebox.showwarning('Предупреждение', 'Файл для удаления из списка не выбран.')
             return
         MsgBox = messagebox.askquestion('Удалить файл', 'Вы уверены, что хотите удалить файл из списка?',
                                         icon='warning')
@@ -142,7 +142,7 @@ class App:
 
     def run_parse(self):
         if not self.lbox.get(0, END):
-            messagebox.showwarning('Сообщение', 'Добавьте файлы протоколов для обработки.')
+            messagebox.showwarning('Предупреждение', 'Добавьте файлы протоколов для обработки.')
         else:
             self.run.configure(text=u'Обработка...')
             self.run.update()
