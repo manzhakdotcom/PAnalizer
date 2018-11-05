@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import re
 import os
+import io
 try:
     from Tkinter import *
-    import tkFileDialog
+    from tkFileDialog import *
     import tkMessageBox as messagebox
 except ImportError:
     from tkinter import *
@@ -15,7 +16,7 @@ def get_protocol(paths):
     data = []
     for path in paths:
         try:
-            with open(path) as file:
+            with io.open(path) as file:
                 lines = file.readlines()
                 if not re.findall('d:\d+,M:\d+,h:\d+,m:\d+,s:\d+,', lines[0]):
                     messagebox.showwarning('Предупреждение',
@@ -53,15 +54,15 @@ def get_protocol(paths):
                              defaultextension='.txt')
     if save:
         with open(save, 'w') as file:
-            print('================================================================================\n', file=file)
-            print('<СТАНЦИЯ> <ДД-ММ> <ЧЧ:ММ:СС> --- <СПИСОК ИМПУЛЬСОВ>\n', file=file)
+            file.write('================================================================================\n')
+            file.write('<СТАНЦИЯ> <ДД-ММ> <ЧЧ:ММ:СС> --- <СПИСОК ИМПУЛЬСОВ>\n')
             sdata = sorted(data)
             station = ''
             for line in sdata:
                 if not line[0] in station:
-                    print('================================================================================\n', file=file)
+                    file.write('================================================================================\n')
                     station = line[0]
-                print(line[1], file=file)
+                file.write(line[1])
         return save
 
 
@@ -176,9 +177,9 @@ class App:
 
 
 def center(root, width, height, offset):
-    x = root.winfo_screenwidth() / 2 - width / 2 + offset
-    y = root.winfo_screenheight() / 2 - height / 2 + offset
-    root.geometry('{}x{}+{}+{}'.format(width, height, round(x), round(y)))
+    x = round(root.winfo_screenwidth() / 2 - width / 2 + offset)
+    y = round(root.winfo_screenheight() / 2 - height / 2 + offset)
+    root.geometry('{}x{}+{}+{}'.format(width, height, int(x), int(y)))
 
 
 def main():
