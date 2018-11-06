@@ -1,22 +1,16 @@
 # -*- coding: utf-8 -*-
 import re
 import os
-import io
-try:
-    from Tkinter import *
-    from tkFileDialog import *
-    import tkMessageBox as messagebox
-except ImportError:
-    from tkinter import *
-    from tkinter.filedialog import *
-    from tkinter import messagebox
+from tkinter import *
+from tkinter.filedialog import *
+from tkinter import messagebox
 
 
 def get_protocol(paths):
     data = []
     for path in paths:
         try:
-            with io.open(path) as file:
+            with open(path) as file:
                 lines = file.readlines()
                 if not re.findall('d:\d+,M:\d+,h:\d+,m:\d+,s:\d+,', lines[0]):
                     messagebox.showwarning('Предупреждение',
@@ -71,7 +65,7 @@ class App:
         self.root = root
         self.root.bind('<F1>', self.top_level_about)
         self.root.bind('<Control-q>', self.close)
-        self.root.bind('<Control-z>', self.add_file)
+        self.root.bind('<Control-a>', self.add_file)
         self.menu()
         self.elements()
 
@@ -83,14 +77,14 @@ class App:
         file = Menu(menubar)
         about = Menu(menubar)
 
-        menubar.add_cascade(menu=file, label=u'Файл')
-        menubar.add_cascade(menu=about, label=u'?')
+        menubar.add_cascade(menu=file, label='Файл')
+        menubar.add_cascade(menu=about, label='?')
 
-        file.add_command(label=u'Добавить файл', command=self.add_file, accelerator="Ctrl+Z")
+        file.add_command(label='Добавить файл', command=self.add_file, accelerator="Ctrl+A")
         file.add_separator()
-        file.add_command(label=u'Выйти', command=self.close, accelerator="Ctrl+Q")
+        file.add_command(label='Выйти', command=self.close, accelerator="Ctrl+Q")
 
-        about.add_command(label=u'О программе', command=self.top_level_about, accelerator="F1")
+        about.add_command(label='О программе', command=self.top_level_about, accelerator="F1")
 
     def close(self, event=None):
         self.root.destroy()
@@ -98,7 +92,7 @@ class App:
     def elements(self):
         c = Frame(self.root)
         c.pack(fill=BOTH, expand=1, padx=5, pady=5)
-        self.lbox = Listbox(c, height=10)
+        self.lbox = Listbox(c, height=12)
         vsb = Scrollbar(c, orient=VERTICAL, command=self.lbox.yview)
         vsb.pack(fill=Y, side=RIGHT)
         hsb = Scrollbar(c, orient=HORIZONTAL, command=self.lbox.xview)
@@ -145,27 +139,27 @@ class App:
         if not self.lbox.get(0, END):
             messagebox.showwarning('Предупреждение', 'Добавьте файлы протоколов для обработки.')
         else:
-            self.run.configure(text=u'Обработка...')
+            self.run.configure(text='Обработка...')
             self.run.update()
             result = get_protocol(self.lbox.get(0, END))
             if result:
                 messagebox.showinfo('Сообщение', 'Протокол обработан и сохранен по адресу\n' + str(result))
-            self.run.configure(text=u'Запустить обработку')
+            self.run.configure(text='Запустить обработку')
             self.run.update()
 
     def top_level_about(self, event=None):
         win = Toplevel(self.root)
         win.resizable(0, 0)
         center(win, 220, 120, 0)
-        win.iconbitmap(os.getcwd() + os.path.sep + u'icon.ico')
-        win.title(u'О программе')
+        win.iconbitmap(os.getcwd() + os.path.sep + 'icon.ico')
+        win.title('О программе')
 
         frame = Frame(win)
         frame.pack()
 
-        label1 = Label(frame, text=u'Программа анализирует и\nсортирует данные из\nфайлов протоколов.')
-        label2 = Label(frame, text=u'Автор © Манжак С.С.')
-        label3 = Label(frame, text=u'Версия v' + self.root.version + u' Win 32')
+        label1 = Label(frame, text='Программа анализирует и\nсортирует данные из\nфайлов протоколов.')
+        label2 = Label(frame, text='Автор © Манжак С.С.')
+        label3 = Label(frame, text='Версия v' + self.root.version + ' Win 32')
 
         label1.grid(row=0, column=0, pady=10)
         label2.grid(row=1, column=0)
@@ -184,10 +178,10 @@ def center(root, width, height, offset):
 
 def main():
     root = Tk()
-    root.version = '0.0.2'
+    root.version = '0.0.3'
     root.resizable(0, 0)
     center(root, 250, 340, 0)
-    root.title(u'Анализ протоколов')
+    root.title('Анализ протоколов')
     root.iconbitmap(os.getcwd() + os.path.sep + 'icon.ico')
     app = App(root)
     root.mainloop()
