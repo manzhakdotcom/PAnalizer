@@ -56,7 +56,7 @@ def get_protocol(paths):
                 if not line[0] in station:
                     file.write('================================================================================\n')
                     station = line[0]
-                file.write(line[1])
+                file.write(line[1] + '\n')
         return save
 
 
